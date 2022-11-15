@@ -1,5 +1,5 @@
 function test_request() {
-  fetch("/test_endpoint")
+  fetch("/testendpoint")
   .then((response) => {
     return response.text()
   })
