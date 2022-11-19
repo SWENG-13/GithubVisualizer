@@ -6,7 +6,7 @@ import json;
 # Method to request data from the api
 def call_url(url, jsonName, headers, isAuth):
   if isAuth == True:
-    response = requests.get(url, auth=("Kajus1331","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"))
+    response = requests.get(url, auth=("Kajus1331",""))
   else:
     response = requests.get(url)
   response_dict = response.json()
@@ -15,9 +15,9 @@ def call_url(url, jsonName, headers, isAuth):
     
 # Used for testing
 #matt token
-token = "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"
+token = ""
 #kajus token
-#token = "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"     
+#token = ""     
 headers = {'Authorization': 'token ' + token}
 #url = 'https://api.github.com/users/HarveyBrezinaConniffe/repos'
 url = 'https://api.github.com/users/matthu2711/repos'
