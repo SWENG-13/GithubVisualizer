@@ -21,11 +21,12 @@ st.set_page_config(
     layout="wide",
 )
 
-user_filter = False
-repo_filter = False
+debug_username = "@emukperv"
+debug_name = "vic"
+debug_desc = "hi"
+debug_location = "Dublin, Ireland"
 valid = True
 
-"Hello World"
 # read token
 file = open("token.txt")
 token = file.read()
@@ -36,38 +37,16 @@ git = Github(token)
 st.title("📈Github Data Visualisation")
 st.subheader="Measuring Software Engineering"
 
-data_filter = st.selectbox("What type of data would you like to visualise?", ("", "Users", "Repository"), index=0)
-if data_filter == "Users":
-    user_filter = True
-elif data_filter == "Repository":
-    repo_filter = True
-    
-if user_filter == True:
-    user_in = st.text_input("Enter Github Username:")
-    try:
-        pass # USER INPUT USERNAME AND FIND FROM API
-    except Exception as e:
+user_in = st.text_input("Enter Github Username:")
+try:
+    pass # USER INPUT USERNAME AND FIND FROM API
+except Exception as e:
         st.write("User not found")
         valid = False
-elif repo_filter == True:
-    user_in = st.text_input("Enter Repository Link:")
-    if user_in.startswith("https"):
-        user_in = user_in[19:]
-    if user_in.startswith("github"):
-        user_in = user_in[11:]
-    try:
-        pass
-    except Exception as e:
-        st.write("Repository not found")
-        valid = False
     
-if user_filter == True & user_in.__eq__("vicky-emuk"): # debug
+if user_in.__eq__("vicky-emuk"): # debug
     
     i1_1, i1_2, i1_3 = st.columns(3) # add optional column for avatar 
-    debug_username = "@emukperv"
-    debug_name = "vic"
-    debug_desc = "hi"
-    debug_location = "Dublin, Ireland"
 
     with i1_1:
         st.markdown("""
@@ -109,7 +88,3 @@ if user_filter == True & user_in.__eq__("vicky-emuk"): # debug
     
     i2_1, i2_2 = st.columns(2)
     
-    with i2_1:
-        st.write("""
-        Followers
-        """, data_filter)
