@@ -1,0 +1,4 @@
+plotly==5.11.0
+streamlit
+PyGithub == 1.55
+requests
