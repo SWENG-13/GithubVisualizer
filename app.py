@@ -71,10 +71,6 @@ def getUserInfo():
                             **Star Count**\n
                             """)
         st.write(countStars(st.session_state.user_details))
-        st.markdown("""
-                    **Public Repos**\n
-                    """)
-        st.write(st.session_state.user_details["public_repos"])
     with i1_2:
         st.markdown("""
                     **Username**\n
@@ -92,10 +88,15 @@ def getUserInfo():
                     **Location**\n
                     """)
         st.write(st.session_state.user_details["location"])
+        st.markdown("""
+                    **Public Repos**\n
+                    """)
+        st.write(st.session_state.user_details["public_repos"])
     with i1_3:
         st.markdown("""
                     **Most Recent Repos**\n
                     """)
+        st.write("list for top 5 repos")
 
     i2_1, i2_2 = st.columns([1.5, 1])
     with i2_1:
