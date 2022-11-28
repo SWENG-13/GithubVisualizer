@@ -1,6 +1,8 @@
 # imports
+import pandas as pd
 import requests
 import streamlit as st # web app
+import plotly_express as px
 import streamlit.components.v1 as stc # html
 import plotly.graph_objects as go # charts
 from github import Github # tokens
@@ -37,6 +39,7 @@ st.subheader="Measuring Software Engineering"
 user_in = None
 
 st.session_state.user_details = None
+st.session_state.language_data = None
 
 text_input = st.text_input("Enter Github Username:", key='username')
 
@@ -49,8 +52,20 @@ def countStars(userDetails):
     count = len(star_list)
     return count
 
+def languageAnalyse(lanDetails):
+    key_arr = []
+    val_arr = []
+    for key in lanDetails["languages"].keys():
+        key_arr.append(key)
+    for value in lanDetails["languages"].values():
+        val_arr.append(value)
+    df = pd.DataFrame({"language": key_arr, "size": val_arr})
+    pieChart = px.pie(df, names="language", values="size")
+    return pieChart
+
 def getUserInfo():
   st.session_state.user_details = dataloader.getUserInfo(st.session_state.username, token=TOKEN)
+  st.session_state.language_data = dataloader.getRepoLanguages(st.session_state.username, token=TOKEN)
   if st.session_state.user_details["error"] == True:
     st.session_state.user_details = None
     st.write("User not found")
@@ -108,7 +123,7 @@ def getUserInfo():
         st.markdown("""
                     **Language**\n
                     """)
-        st.write("pie chart for language used")
+        st.plotly_chart(languageAnalyse(st.session_state.language_data))
 
 if text_input:
     getUserInfo()
