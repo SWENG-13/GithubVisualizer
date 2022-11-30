@@ -1,6 +1,13 @@
 # imports
-from collections import Counter
+import pandas as pd
 import requests
+import streamlit as st # web app
+import plotly.express as px
+import streamlit.components.v1 as stc # html
+import plotly.graph_objects as go # charts
+from github import Github # tokens
+from datetime import datetime
+from collections import Counter # count
 import dataloader
 import streamlit as st
 import datetime as dt
@@ -9,7 +16,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from github import Github
 
-TOKEN = "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"
+TOKEN = None
 g = Github(TOKEN)
 # function for getting and displaying profile information
     # user data: avatar (?), username, name, description, location
@@ -32,9 +39,9 @@ st.subheader = "Measuring Software Engineering"
 user_in = None
 
 st.session_state.user_details = None
+st.session_state.language_data = None
 
 text_input = st.text_input("Enter Github Username:", key='username')
-
 
 def countStars(userDetails):
     response = requests.get(userDetails["starred_url"][:-15])
@@ -56,9 +63,22 @@ def displayActivity(activity):
     fig.update_yaxes(gridcolor='#353642')
     return fig
 
+def languageAnalyse(lanDetails):
+    key_arr = []
+    val_arr = []
+    for key in lanDetails["languages"].keys():
+        key_arr.append(key)
+    for value in lanDetails["languages"].values():
+        val_arr.append(value)
+    df = pd.DataFrame({"language": key_arr, "size": val_arr})
+    pieChart = px.pie(df, names="language", values="size")
+    return pieChart
+
 def getUserInfo():
     usr = g.get_user(st.session_state.username)
     st.session_state.user_details = dataloader.getUserInfo(
+        st.session_state.username, token=TOKEN)
+    st.session_state.language_data = dataloader.getRepoLanguages(
         st.session_state.username, token=TOKEN)
     if st.session_state.user_details["error"] == True:
         st.session_state.user_details = None
@@ -70,7 +90,6 @@ def getUserInfo():
             date = i.created_at.date()
             date = date.strftime("%Y-%m-%d")
             user_activity.append(date)
-
     with i1_1:
         st.image(st.session_state.user_details["avatar_url"], width=200)
         st.markdown("""
@@ -123,7 +142,7 @@ def getUserInfo():
         st.markdown("""
                     **Language**\n
                     """)
-        st.write("pie chart for language used")
+        st.plotly_chart(languageAnalyse(st.session_state.language_data))
 
 if text_input:
     getUserInfo()

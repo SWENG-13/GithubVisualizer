@@ -86,6 +86,27 @@ def getTotalCommits(username, token=None):
       output["total_commits"] += len(response.json())
   return output
 
+def getRepoLanguages(username, token=None):
+  repos = getRepos(username, token=None)
+  # Add token to headers if supplied
+  headers = {}
+  if token is not None:
+    headers["Authorization"] = "token {}".format(token)
+  output = {"error": False, "languages": {}}
+  for repo in repos["repo_names"]:
+    requestURL = 'https://api.github.com/repos/{}/{}/languages'.format(username, repo)
+    response = requests.get(requestURL)
+    if not response.ok:
+      return {"error": True, "error_details": response.json()}
+    else:
+      data = response.json()
+      for key in data.keys():
+        if key in output["languages"].keys():
+          output["languages"][key] += data[key]
+        else:
+          output["languages"][key] = data[key]
+  return output
+
 """
 def getContributorData(headers, url):
   global contributorsList
