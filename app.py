@@ -32,9 +32,9 @@ st.subheader = "Measuring Software Engineering"
 user_in = None
 
 st.session_state.user_details = None
+st.session_state.language_data = None
 
 text_input = st.text_input("Enter Github Username:", key='username')
-
 
 def countStars(userDetails):
     response = requests.get(userDetails["starred_url"][:-15])
@@ -70,6 +70,25 @@ def getUserInfo():
             date = i.created_at.date()
             date = date.strftime("%Y-%m-%d")
             user_activity.append(date)
+def languageAnalyse(lanDetails):
+    key_arr = []
+    val_arr = []
+    for key in lanDetails["languages"].keys():
+        key_arr.append(key)
+    for value in lanDetails["languages"].values():
+        val_arr.append(value)
+    df = pd.DataFrame({"language": key_arr, "size": val_arr})
+    pieChart = px.pie(df, names="language", values="size")
+    return pieChart
+
+def getUserInfo():
+  st.session_state.user_details = dataloader.getUserInfo(st.session_state.username, token=TOKEN)
+  st.session_state.language_data = dataloader.getRepoLanguages(st.session_state.username, token=TOKEN)
+  if st.session_state.user_details["error"] == True:
+    st.session_state.user_details = None
+    st.write("User not found")
+  else:
+    i1_1, i1_2, i1_3 = st.columns([1,1,1.5]) # add optional column for avatar
 
     with i1_1:
         st.image(st.session_state.user_details["avatar_url"], width=200)
@@ -123,7 +142,7 @@ def getUserInfo():
         st.markdown("""
                     **Language**\n
                     """)
-        st.write("pie chart for language used")
+        st.plotly_chart(languageAnalyse(st.session_state.language_data))
 
 if text_input:
     getUserInfo()
