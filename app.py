@@ -36,6 +36,7 @@ st.session_state.language_data = None
 
 text_input = st.text_input("Enter Github Username:", key='username')
 
+
 def countStars(userDetails):
     response = requests.get(userDetails["starred_url"][:-15])
     if not response.ok:
@@ -45,31 +46,19 @@ def countStars(userDetails):
     count = len(star_list)
     return count
 
+
 def displayActivity(activity):
     activity_count = dict(Counter(activity))
     keys = list(activity_count.keys())
     values = list(activity_count.values())
-    fig = go.Figure(data=[go.Scatter(x=keys, y = values)])
+    fig = go.Figure(data=[go.Scatter(x=keys, y=values)])
     fig.update_layout(title='Recent Activity:', autosize=False,
                         width=650, height=500, plot_bgcolor='#161a24')
     fig.update_xaxes(gridcolor='#353642')
     fig.update_yaxes(gridcolor='#353642')
     return fig
 
-def getUserInfo():
-    usr = g.get_user(st.session_state.username)
-    st.session_state.user_details = dataloader.getUserInfo(
-        st.session_state.username, token=TOKEN)
-    if st.session_state.user_details["error"] == True:
-        st.session_state.user_details = None
-        st.write("User not found")
-    else:
-        i1_1, i1_2, i1_3 = st.columns([1,1,1.5]) # add optional column for avatar
-        user_activity = []
-        for i in usr.get_events():
-            date = i.created_at.date()
-            date = date.strftime("%Y-%m-%d")
-            user_activity.append(date)
+
 def languageAnalyse(lanDetails):
     key_arr = []
     val_arr = []
@@ -81,68 +70,77 @@ def languageAnalyse(lanDetails):
     pieChart = px.pie(df, names="language", values="size")
     return pieChart
 
+
 def getUserInfo():
-  st.session_state.user_details = dataloader.getUserInfo(st.session_state.username, token=TOKEN)
-  st.session_state.language_data = dataloader.getRepoLanguages(st.session_state.username, token=TOKEN)
-  if st.session_state.user_details["error"] == True:
-    st.session_state.user_details = None
-    st.write("User not found")
-  else:
-    i1_1, i1_2, i1_3 = st.columns([1,1,1.5]) # add optional column for avatar
+    usr = g.get_user(st.session_state.username)
+    st.session_state.user_details = dataloader.getUserInfo(
+        st.session_state.username, token=TOKEN)
+    st.session_state.language_data = dataloader.getRepoLanguages(
+        st.session_state.username, token=TOKEN)
+    if st.session_state.user_details["error"] == True:
+        st.session_state.user_details = None
+        st.write("User not found")
+    else:
+        i1_1, i1_2, i1_3 = st.columns([1,1,1.5]) # add optional column for avatar
+        user_activity = []
+        for i in usr.get_events():
+            date = i.created_at.date()
+            date = date.strftime("%Y-%m-%d")
+            user_activity.append(date)
+                
+        with i1_1:
+            st.image(st.session_state.user_details["avatar_url"], width=200)
+            st.markdown("""
+                        **Followers**\n
+                        """)
+            st.write(st.session_state.user_details["followers"])  # (user_info["name"]) e.g as a way to call user info from list
+            st.markdown("""
+                        **Following**\n
+                        """)
+            st.write(st.session_state.user_details["following"])  # (user_info["name"]) e.g as a way to call user info from list
+            st.markdown("""
+                                **Star Count**\n
+                                """)
+            st.write(countStars(st.session_state.user_details))
+        with i1_2:
+            st.markdown("""
+                        **Username**\n
+                        """)
+            st.write(st.session_state.username) # (user_info["name"]) e.g as a way to call user info from list
+            st.markdown("""
+                        **Name**\n
+                        """)
+            st.write(st.session_state.user_details["name"])
+            st.markdown("""
+                        **Description**\n
+                        """)
+            st.write(st.session_state.user_details["bio"])
+            st.markdown("""
+                        **Location**\n
+                        """)
+            st.write(st.session_state.user_details["location"])
+            st.markdown("""
+                        **Public Repos**\n
+                        """)
+            st.write(st.session_state.user_details["public_repos"])
+        with i1_3:
+            st.markdown("""
+                        **Most Recent Repos**\n
+                        """)
+            st.write("list for top 5 repos")
 
-    with i1_1:
-        st.image(st.session_state.user_details["avatar_url"], width=200)
-        st.markdown("""
-                    **Followers**\n
-                    """)
-        st.write(st.session_state.user_details["followers"])  # (user_info["name"]) e.g as a way to call user info from list
-        st.markdown("""
-                    **Following**\n
-                    """)
-        st.write(st.session_state.user_details["following"])  # (user_info["name"]) e.g as a way to call user info from list
-        st.markdown("""
-                            **Star Count**\n
-                            """)
-        st.write(countStars(st.session_state.user_details))
-    with i1_2:
-        st.markdown("""
-                    **Username**\n
-                    """)
-        st.write(st.session_state.username) # (user_info["name"]) e.g as a way to call user info from list
-        st.markdown("""
-                    **Name**\n
-                    """)
-        st.write(st.session_state.user_details["name"])
-        st.markdown("""
-                    **Description**\n
-                    """)
-        st.write(st.session_state.user_details["bio"])
-        st.markdown("""
-                    **Location**\n
-                    """)
-        st.write(st.session_state.user_details["location"])
-        st.markdown("""
-                    **Public Repos**\n
-                    """)
-        st.write(st.session_state.user_details["public_repos"])
-    with i1_3:
-        st.markdown("""
-                    **Most Recent Repos**\n
-                    """)
-        st.write("list for top 5 repos")
+        i2_1, i2_2 = st.columns([1.5, 1])
+        with i2_1:
+            st.markdown("""
+                        **Recent Activity**\n
+                        """)
+            st.plotly_chart(displayActivity(user_activity))
+            
+        with i2_2:
+            st.markdown("""
+                        **Language**\n
+                        """)
+            st.plotly_chart(languageAnalyse(st.session_state.language_data))
 
-    i2_1, i2_2 = st.columns([1.5, 1])
-    with i2_1:
-        st.markdown("""
-                    **Recent Activity**\n
-                    """)
-        st.plotly_chart(displayActivity(user_activity))
-        
-    with i2_2:
-        st.markdown("""
-                    **Language**\n
-                    """)
-        st.plotly_chart(languageAnalyse(st.session_state.language_data))
-
-if text_input:
-    getUserInfo()
+    if text_input:
+        getUserInfo()
