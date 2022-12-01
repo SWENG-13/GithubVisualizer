@@ -31,12 +31,13 @@ def getRepos(username, token=None):
   else:
     output = {"error": False, "repo_names": []}
     data = response.json()
-    for repo in data:
+    # for repo in data:
       # Check that repo is not empty
-      if repo["size"] > 0:
-        output["repo_names"].append(repo["name"])
+      # if repo["size"] > 0:
+      #   output["repo_names"].append(repo["name"])
     # Return repo names
-    return output
+    # return output
+    return data
   
 # Function that returns the commit frequency of each of a users repos
 # Repo name must be in the format {OWNER}/{NAME}, e.g. SWENG-13/GithubVisualizer
@@ -85,6 +86,39 @@ def getTotalCommits(username, token=None):
     else:
       output["total_commits"] += len(response.json())
   return output
+
+#Function to return a list of first usernames, and secondly their corresponding contributions for the given repository
+def getTopRepoContributors(user, repo, token=None):
+  requestURL = 'https://api.github.com/repos/{username}/{repoName}/contributors'.format(username = user, repoName = repo)
+  response = requests.get(requestURL)
+  data = response.text
+  r = json.loads(data)
+  contributorDict = dict()
+  contributorList = []
+  for i in r:
+    username = i['login']
+    contributions = i['contributions']
+    contributorDict[username] = contributions
+  sort = sorted(contributorDict.items(), key=lambda item:  item[1], reverse = True)
+
+  result = []
+  if(len(sort) >= 5): 
+    for i in range(0,5):
+        result.append(sort[i])
+  else:
+    result = sort
+
+  usernames = []
+  conts = []
+  for i in result:
+    usernames.append(i[0])
+    conts.append(i[1])  
+
+  namesAndConts = []
+  namesAndConts.append(usernames)
+  namesAndConts.append(conts)
+  return namesAndConts
+
 
 """
 def getContributorData(headers, url):

@@ -6,6 +6,10 @@ from github import Github # tokens
 from datetime import datetime
 from collections import Counter # count
 import dataloader
+import requests
+import json
+
+import pandas as pd
 
 TOKEN = None
 
@@ -24,11 +28,48 @@ st.set_page_config(
     layout="wide",
 )
 
-debug_username = "@emukperv"
+# debug_username = "@emukperv"
+debug_username = "DavyOLearyF"
 debug_name = "vic"
 debug_desc = "hi"
 debug_location = "Dublin, Ireland"
 valid = True
+
+#Davys Code -------------------------------
+
+def sortable_date(x):
+    d,t = x['Last Updated'].split('T')
+    dtoks = d.split('-')
+    #        year     month    day     time
+    return (dtoks[0],dtoks[1],dtoks[2],t)
+
+reposDict = dict()
+repoList = []
+
+file = dataloader.getRepos(debug_username, TOKEN) 
+
+for i in file:
+    repoName = i['name']
+    lastUpdated = i['updated_at']
+    reposDict[repoName] = lastUpdated
+    x={
+    "Repository Name": repoName,
+    "Last Updated": lastUpdated
+    }
+    repoList.append(x)
+
+
+reposResult = sorted(repoList,key=sortable_date, reverse=True)
+
+repoNames = []
+recentDates = []
+for i in range(0,5):
+    repoNames.append(reposResult[i]["Repository Name"])
+    tmp, tmp2 = reposResult[i]["Last Updated"].split('T')
+    recentDates.append(tmp)
+
+#-----------------------------------------------
+
 
 st.title("📈Github Data Visualisation")
 st.subheader="Measuring Software Engineering"
@@ -77,6 +118,15 @@ def getUserInfo():
                     **Public Repos**\n
                     """)
         st.write(st.session_state.user_details["public_repos"])
+
+        st.markdown("""
+                    **Most Recent Repositories**\n
+                    """)
+
+        st.write(pd.DataFrame({
+            'Repo Name': repoNames,
+            'Last Updated': recentDates
+            }))
 
     i2_1, i2_2 = st.columns(2)
 
