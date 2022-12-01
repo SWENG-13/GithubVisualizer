@@ -10,6 +10,7 @@ import plotly.graph_objects as go
 from github import Github
 
 TOKEN = None
+g = Github(GITHUB_TOKEN)
 # function for getting and displaying profile information
     # user data: avatar (?), username, name, description, location
     # keep user data in dict or list form
