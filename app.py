@@ -1,40 +1,33 @@
 # imports
-import pandas as pd
+from collections import Counter
 import requests
-import streamlit as st # web app
-import plotly_express as px
-import streamlit.components.v1 as stc # html
-import plotly.graph_objects as go # charts
-from github import Github # tokens
-from datetime import datetime
-from collections import Counter # count
 import dataloader
+import streamlit as st
+import datetime as dt
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+from github import Github
 
 TOKEN = None
-
-## function for getting and displaying profile information
+g = Github(GITHUB_TOKEN)
+# function for getting and displaying profile information
     # user data: avatar (?), username, name, description, location
     # keep user data in dict or list form
-    
-## function for getting and displaying repo information
+
+# function for getting and displaying repo information
     # repo data:  name, star_count, languages, size
     # keep data in list form to be able to access overall repo info
 
 
 st.set_page_config(
-    page_title="📈Github Data Visualiser",
+    page_title="Github Data Visualiser",
     page_icon="📈",
     layout="wide",
 )
 
-debug_username = "@emukperv"
-debug_name = "vic"
-debug_desc = "hi"
-debug_location = "Dublin, Ireland"
-valid = True
-
 st.title("📈Github Data Visualisation")
-st.subheader="Measuring Software Engineering"
+st.subheader = "Measuring Software Engineering"
 
 user_in = None
 
@@ -62,15 +55,34 @@ def languageAnalyse(lanDetails):
     df = pd.DataFrame({"language": key_arr, "size": val_arr})
     pieChart = px.pie(df, names="language", values="size")
     return pieChart
+    
+def displayActivity(activity):
+    activity_count = dict(Counter(activity))
+    keys = list(activity_count.keys())
+    values = list(activity_count.values())
+    fig = go.Figure(data=[go.Scatter(x=keys, y = values)])
+    fig.update_layout(title='Recent Activity:', autosize=False,
+                        width=650, height=500, plot_bgcolor='#161a24')
+    fig.update_xaxes(gridcolor='#353642')
+    fig.update_yaxes(gridcolor='#353642')
+    return fig
 
 def getUserInfo():
-  st.session_state.user_details = dataloader.getUserInfo(st.session_state.username, token=TOKEN)
-  st.session_state.language_data = dataloader.getRepoLanguages(st.session_state.username, token=TOKEN)
-  if st.session_state.user_details["error"] == True:
-    st.session_state.user_details = None
-    st.write("User not found")
-  else:
-    i1_1, i1_2, i1_3 = st.columns([1,1,1.5]) # add optional column for avatar
+    usr = g.get_user(st.session_state.username)
+    st.session_state.user_details = dataloader.getUserInfo(
+        st.session_state.username, token=TOKEN)
+    st.session_state.language_data = dataloader.getRepoLanguages(
+        st.session_state.username, token=TOKEN)
+    if st.session_state.user_details["error"] == True:
+        st.session_state.user_details = None
+        st.write("User not found")
+    else:
+        i1_1, i1_2, i1_3 = st.columns([1,1,1.5]) # add optional column for avatar
+        user_activity = []
+        for i in usr.get_events():
+            date = i.created_at.date()
+            date = date.strftime("%Y-%m-%d")
+            user_activity.append(date)
 
     with i1_1:
         st.image(st.session_state.user_details["avatar_url"], width=200)
@@ -118,7 +130,8 @@ def getUserInfo():
         st.markdown("""
                     **Recent Activity**\n
                     """)
-        st.write("graph for recent activities")
+        st.plotly_chart(displayActivity(user_activity))
+        
     with i2_2:
         st.markdown("""
                     **Language**\n
