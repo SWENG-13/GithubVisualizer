@@ -3,4 +3,4 @@ WORKDIR /home
 ADD . /home
 WORKDIR /home
 RUN pip install -r requirements.txt
-ENTRYPOINT streamlit run app.py
+ENTRYPOINT streamlit run Home.py
