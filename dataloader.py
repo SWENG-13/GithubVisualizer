@@ -1,5 +1,6 @@
 import requests
 import json
+from typing import List
 
 # Function that returns information about a given user
 # An access token can optionally be supplied
@@ -106,6 +107,42 @@ def getRepoLanguages(username, token=None):
         else:
           output["languages"][key] = data[key]
   return output
+
+def _get_repo_languages(owner: str, repo: str, token:str ):
+    response = requests.get(f"https://api.github.com/repos/{owner}/{repo}/languages",
+        headers={'Authorization': f'access_token {token}'})
+    
+    if response.ok:
+        return response.json()
+    else:
+        raise Exception(f'Failed to access Github API, error code: {response.status_code}')
+
+def get_repos_languages(owners: List[str], repos: List[str], token: str):
+    languages_per_repo = {}
+    for owner, repo in zip(owners, repos):
+        language_stats = _get_repo_languages(owner, repo, token)
+        languages_per_repo[f"{owner}/{repo}"] = language_stats
+    
+    return languages_per_repo
+
+def _get_deployments_history(owner: str, repo: str, token: str):
+    response = requests.get(f"https://api.github.com/repos/{owner}/{repo}/deployments",
+        headers={
+                'Authorization': f'access_token {token}',
+                'Accept': 'application/vnd.github+json'
+        })   
+    if response.ok:
+        return response.json()
+    else:
+        raise Exception(f'Failed to access Github API, error code: {response.status_code}')
+
+def get_deployments_history_multiple_repos(owners: List[str], repos: List[str], token: str):
+    deploymets_per_repo = {}
+    for owner, repo in zip(owners, repos):
+        deployments_info = _get_deployments_history(owner, repo, token)
+        deploymets_per_repo[f"{owner}/{repo}"] = deployments_info
+    
+    return deploymets_per_repo
 
   #Function to return a list of first usernames, and secondly their corresponding contributions for the given repository
 # def getTopRepoContributors(user, repo, token=None):
