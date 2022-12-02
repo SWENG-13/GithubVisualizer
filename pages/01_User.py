@@ -9,32 +9,18 @@ import plotly.express as px
 import plotly.graph_objects as go
 from github import Github
 
+
 TOKEN = None
 g = Github(TOKEN)
-# function for getting and displaying profile information
-    # user data: avatar (?), username, name, description, location
-    # keep user data in dict or list form
 
-# function for getting and displaying repo information
-    # repo data:  name, star_count, languages, size
-    # keep data in list form to be able to access overall repo info
-
-
-st.set_page_config(
-    page_title="Github Data Visualiser",
-    page_icon="📈",
-    layout="wide",
-)
-
-st.title("📈Github Data Visualisation")
-st.subheader = "Measuring Software Engineering"
+st.title("📈Github User Visualisation")
 
 user_in = None
 
 st.session_state.user_details = None
 st.session_state.language_data = None
 
-text_input = st.text_input("Enter Github Username:", key='username')
+text_input = st.text_input("⬇️Enter Github Username:", key='username')
 
 def countStars(userDetails):
     response = requests.get(userDetails["starred_url"][:-15])
@@ -53,7 +39,7 @@ def languageAnalyse(lanDetails):
     for value in lanDetails["languages"].values():
         val_arr.append(value)
     df = pd.DataFrame({"language": key_arr, "size": val_arr})
-    pieChart = px.pie(df, names="language", values="size")
+    pieChart = px.pie(df, names="language", values="size", title="🗣️Languages")
     return pieChart
     
 def displayActivity(activity):
@@ -61,7 +47,7 @@ def displayActivity(activity):
     keys = list(activity_count.keys())
     values = list(activity_count.values())
     fig = go.Figure(data=[go.Scatter(x=keys, y = values)])
-    fig.update_layout(title='Recent Activity:', autosize=False,
+    fig.update_layout(title='💻Recent Activity:', autosize=False,
                         width=650, height=500, plot_bgcolor='#161a24')
     fig.update_xaxes(gridcolor='#353642')
     fig.update_yaxes(gridcolor='#353642')
@@ -87,36 +73,36 @@ def getUserInfo():
     with i1_1:
         st.image(st.session_state.user_details["avatar_url"], width=200)
         st.markdown("""
-                    **Followers**\n
-                    """)
-        st.write(st.session_state.user_details["followers"])  # (user_info["name"]) e.g as a way to call user info from list
-        st.markdown("""
-                    **Following**\n
-                    """)
-        st.write(st.session_state.user_details["following"])  # (user_info["name"]) e.g as a way to call user info from list
-        st.markdown("""
-                            **Star Count**\n
-                            """)
-        st.write(countStars(st.session_state.user_details))
-    with i1_2:
-        st.markdown("""
-                    **Username**\n
+                    **📛Username**\n
                     """)
         st.write(st.session_state.username) # (user_info["name"]) e.g as a way to call user info from list
         st.markdown("""
-                    **Name**\n
+                    **😊Name**\n
                     """)
         st.write(st.session_state.user_details["name"])
         st.markdown("""
-                    **Description**\n
+                    **📋Description**\n
                     """)
         st.write(st.session_state.user_details["bio"])
         st.markdown("""
                     **Location**\n
                     """)
         st.write(st.session_state.user_details["location"])
+    with i1_2:
         st.markdown("""
-                    **Public Repos**\n
+                    **👣Followers**\n
+                    """)
+        st.write(st.session_state.user_details["followers"])  # (user_info["name"]) e.g as a way to call user info from list
+        st.markdown("""
+                    **👣Following**\n
+                    """)
+        st.write(st.session_state.user_details["following"])  # (user_info["name"]) e.g as a way to call user info from list
+        st.markdown("""
+                    **🌟Star Count**\n
+                    """)
+        st.write(countStars(st.session_state.user_details))
+        st.markdown("""
+                    **👀Public Repos**\n
                     """)
         st.write(st.session_state.user_details["public_repos"])
     with i1_3:
@@ -127,15 +113,9 @@ def getUserInfo():
 
     i2_1, i2_2 = st.columns([1.5, 1])
     with i2_1:
-        st.markdown("""
-                    **Recent Activity**\n
-                    """)
         st.plotly_chart(displayActivity(user_activity))
         
     with i2_2:
-        st.markdown("""
-                    **Language**\n
-                    """)
         st.plotly_chart(languageAnalyse(st.session_state.language_data))
 
 if text_input:
