@@ -8,10 +8,12 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from github import Github
+import json
 
 
 TOKEN = None
 g = Github(TOKEN)
+# debug_username = 'DavyOLearyF'
 
 st.title("📈Github User Visualisation")
 
@@ -21,6 +23,41 @@ st.session_state.user_details = None
 st.session_state.language_data = None
 
 text_input = st.text_input("⬇️Enter Github Username:", key='username')
+
+#Davys Code -------------------------------
+
+# def sortable_date(x):
+#     d,t = x['Last Updated'].split('T')
+#     dtoks = d.split('-')
+#     #        year     month    day     time
+#     return (dtoks[0],dtoks[1],dtoks[2],t)
+
+# reposDict = dict()
+# repoList = []
+
+# file = dataloader.getRepos(debug_username, TOKEN) 
+
+# for i in file:
+#     repoName = i['name']
+#     lastUpdated = i['updated_at']
+#     reposDict[repoName] = lastUpdated
+#     x={
+#     "Repository Name": repoName,
+#     "Last Updated": lastUpdated
+#     }
+#     repoList.append(x)
+
+
+# reposResult = sorted(repoList,key=sortable_date, reverse=True)
+
+# repoNames = []
+# recentDates = []
+# for i in range(0,5):
+#     repoNames.append(reposResult[i]["Repository Name"])
+#     tmp, tmp2 = reposResult[i]["Last Updated"].split('T')
+#     recentDates.append(tmp)
+
+#-----------------------------------------------
 
 def countStars(userDetails):
     response = requests.get(userDetails["starred_url"][:-15])
@@ -110,6 +147,11 @@ def getUserInfo():
                     **Most Recent Repos**\n
                     """)
         st.write("list for top 5 repos")
+
+        # st.write(pd.DataFrame({
+        #     'Repo Name': repoNames,
+        #     'Last Updated': recentDates
+        #     }))
 
     i2_1, i2_2 = st.columns([1.5, 1])
     with i2_1:
